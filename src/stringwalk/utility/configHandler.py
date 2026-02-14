@@ -7,6 +7,8 @@ import json
 import asyncio
 
 
+config_lock = asyncio.Lock()
+
 def getConfigPath():
     """Path to the config."""
     home = Path.home()
@@ -28,34 +30,40 @@ def getDefaultConfigPath():
     return root / "config" / "config.json"
 
 async def writeConfig(data: dict):
-    loop = asyncio.get_running_loop()
-    config_file = await loop.run_in_executor(None, getConfigPath)
-    await asyncio.to_thread(writeJson, config_file, data)
+    async with config_lock:
+        loop = asyncio.get_running_loop()
+        config_file = await loop.run_in_executor(None, getConfigPath)
+        await asyncio.to_thread(writeJson, config_file, data)
 
 async def writeConfigItem(key: str, value):
-    loop = asyncio.get_running_loop()
-    config_file = await loop.run_in_executor(None, getConfigPath)
+    async with config_lock:
+        loop = asyncio.get_running_loop()
+        config_file = await loop.run_in_executor(None, getConfigPath)
 
-    config = await asyncio.to_thread(parseJson, config_file)
+        config = await asyncio.to_thread(parseJson, config_file)
 
-    config[key] = value
+        if not isinstance(config, dict):
+            config = {}
 
-    await asyncio.to_thread(writeJson, config_file, config)
+        config[key] = value
+
+        await asyncio.to_thread(writeJson, config_file, config)
 
 async def readConfigItem(key: str, default=None):
-    config_file = getConfigPath()
+    async with config_lock:
+        config_file = getConfigPath()
 
-    if not config_file.exists():
-        default_config_path = getDefaultConfigPath()
+        if not config_file.exists():
+            default_config_path = getDefaultConfigPath()
 
-        if default_config_path.exists():
-            with open(default_config_path, "r", encoding="utf-8") as f:
-                default_config = json.load(f)
+            if default_config_path.exists():
+                with open(default_config_path, "r", encoding="utf-8") as f:
+                    default_config = json.load(f)
 
-            await writeConfig(default_config)
-        else:
-            await writeConfig({})
+                await writeConfig(default_config)
+            else:
+                await writeConfig({})
 
-    data = parseJson(config_file, key)
+    data = await asyncio.to_thread(parseJson, config_file, key)
 
     return data if data is not None else default

@@ -40,6 +40,17 @@ def createlangSelect(navigate, parent=None):
             task.add_done_callback(self.__texts_loaded)
 
         def __texts_loaded(self, task):
+            try:
+                if self.layout_ref is None: return
+            except RuntimeError:
+                return
+
+            try:
+                if not self.isVisible() or self.layout_ref is None:
+                    return
+            except (RuntimeError, AttributeError):
+                return
+
             texts = task.result()
 
             # Create language buttons

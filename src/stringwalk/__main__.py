@@ -1,5 +1,7 @@
 from PyQt6.QtWidgets import QApplication, QMainWindow, QPushButton
+from PyQt6.QtCore import QTimer
 from .utility.projectNameHandler import getProjectName
+from .utility.resolutionHandler import getResolution, centerWindow, lockWindowSize
 from .gui.mainMenu import createMainMenu
 from .gui.settingsMenu import createSettingsMenu
 import asyncio
@@ -19,19 +21,29 @@ def gameExec():
     class MainWindow(QMainWindow):
         def __init__(self):
             super().__init__()
-
             title = getProjectName()
             self.setWindowTitle(title)
-            self.show()
 
         def navigate(self, factory):
             """Replace central widget with a new menu instance."""
             widget = factory(self.navigate, parent=self)
             self.setCentralWidget(widget)
 
-    window = MainWindow()
-    window.resize(400, 300)
-    window.navigate(createMainMenu)
+    async def setup():
+        res = await getResolution()
+        try:
+            x, y = map(int, res.split("x"))
+        except (ValueError, AttributeError):
+            x, y = 800, 600
+    
+        main_window = MainWindow()
+        lockWindowSize(main_window, x, y)
+        main_window.navigate(createMainMenu)
+        main_window.show()
+        
+        QTimer.singleShot(0, lambda: centerWindow(main_window))
+
+    main_window = loop.run_until_complete(setup())
 
     with loop:
         loop.run_forever()

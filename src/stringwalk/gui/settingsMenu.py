@@ -18,7 +18,7 @@ def createSettingsMenu(navigate, parent=None):
             layout.setSpacing(20)
             layout.addStretch()
 
-            self.keys = ["language", "back"]
+            self.keys = ["language", "resolution", "back"]
             self.layout_ref = layout
 
             loop = asyncio.get_event_loop()
@@ -36,6 +36,12 @@ def createSettingsMenu(navigate, parent=None):
                         f"{getProjectNameLower()}.gui.settings.langSelect",
                         fromlist=["createlangSelect"]
                     ).createlangSelect
+                ),
+                lambda w=None: self.navigate(
+                    __import__(
+                        f"{getProjectNameLower()}.gui.settings.resolutionSelect",
+                        fromlist=["createresolutionSelect"]
+                    ).createresolutionSelect
                 ),
                 lambda w=None: self.navigate(
                     __import__(
