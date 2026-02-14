@@ -56,8 +56,6 @@ async def readConfigItem(key: str, default=None):
         else:
             await writeConfig({})
 
-        await asyncio.sleep(0)
-
     data = parseJson(config_file, key)
 
     return data if data is not None else default
