@@ -10,7 +10,7 @@ dependencies = [
 ]
 
 [project.scripts]
-stringwalk = "stringwalk.__main__:run"   # `stringwalk` becomes a command
+stringwalk = "stringwalk.__main__:gameExec"   # `stringwalk` becomes a command
 
 [build-system]
 requires = ["setuptools"]
