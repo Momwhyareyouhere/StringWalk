@@ -5,10 +5,10 @@ import glob
 from pathlib import Path
 from ...utility.configHandler import readConfigItem, writeConfigItem
 from ...utility.jsonParser import parseJson
-from ...utility.languageHandler import setLanguage
-from ...utility.textHandler import getText
-from ...utility.resolutionHandler import getResolution, centerWindow, lockWindowSize
-from ...utility.projectNameHandler import getProjectNameLower
+from ...utility.data.languageHandler import setLanguage
+from ...utility.data.textHandler import getText
+from ...utility.ui.resolutionHandler import getResolution, centerWindow, lockWindowSize
+from ...utility.data.projectNameHandler import getProjectNameLower
 from functools import partial
 import os
 

@@ -4,9 +4,9 @@ import asyncio
 import glob
 from pathlib import Path
 from ...utility.jsonParser import parseJson
-from ...utility.languageHandler import setLanguage
-from ...utility.textHandler import getText
-from ...utility.projectNameHandler import getProjectNameLower
+from ...utility.data.languageHandler import setLanguage
+from ...utility.data.textHandler import getText
+from ...utility.data.projectNameHandler import getProjectNameLower
 from functools import partial
 import os
 

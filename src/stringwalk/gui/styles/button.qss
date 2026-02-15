@@ -1,0 +1,36 @@
+/* Standard state of button */
+QPushButton, QComboBox {
+    background-color: #e74c3c; /* Rood */
+    color: white;
+    border: 2px solid #c0392b;
+    border-radius: 10px;
+    padding: 10px 20px;
+    font-size: 18px;
+    font-weight: bold;
+    min-width: 150px;
+    margin-bottom: 20px;
+}
+
+/* Wanneer hovered over the button with a mouse */
+QPushButton:hover, QComboBox:hover {
+    background-color: #ff5e4d; /* Iets lichter rood */
+    border: 2px solid #e74c3c;
+}
+
+/* When the button is pressed */
+QPushButton:pressed, QComboBox:pressed {
+    background-color: #c0392b; /* Donkerder rood */
+}
+
+/* Styling for disabled buttons */
+QPushButton:disabled, QComboBox:disabled {
+    background-color: #95a5a6;
+    border: 2px solid #7f8c8d;
+    color: #bdc3c7;
+}
+
+QComboBox::drop-down {
+    border: none; 
+    background: transparent; /* Zorgt dat de rode kleur van de combobox doorloopt */
+    width: 30px;
+}

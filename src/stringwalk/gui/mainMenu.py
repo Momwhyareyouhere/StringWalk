@@ -1,7 +1,9 @@
 from PyQt6.QtWidgets import QApplication, QWidget, QPushButton, QSizePolicy, QVBoxLayout
-from ..utility.textHandler import getText
-from ..utility.projectNameHandler import getProjectNameLower
-from ..utility.buttonHandler import handleButton
+from ..utility.ui.menuHandler import makeMenuLayout
+from ..utility.data.textHandler import getText
+from ..utility.audio.soundHandler import playSound
+from ..utility.data.projectNameHandler import getProjectNameLower
+from ..utility.ui.buttonHandler import handleButton
 from functools import partial
 import asyncio
 
@@ -13,15 +15,15 @@ def createMainMenu(navigate, parent=None):
             self.navigate = navigate
 
             # Main layout
-            layout = QVBoxLayout()
-            layout.setContentsMargins(50, 50, 50, 50)
-            layout.setSpacing(20)
-            layout.addStretch()
+            layout = makeMenuLayout()
 
             self.keys = ["start", "settings", "exit"]
             self.layout_ref = layout
-
+    
             loop = asyncio.get_event_loop()
+
+            music = playSound("music", "lobby.mp3")
+
             task = loop.create_task(getText(self.keys))
             task.add_done_callback(self.__texts_loaded)
 

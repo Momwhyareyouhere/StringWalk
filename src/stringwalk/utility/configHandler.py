@@ -1,5 +1,5 @@
 from pathlib import Path
-from .projectNameHandler import getProjectName
+from .data.projectNameHandler import getProjectName
 from .jsonParser import writeJson, parseJson
 import os
 import sys

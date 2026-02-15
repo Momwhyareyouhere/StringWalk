@@ -1,8 +1,9 @@
 from PyQt6.QtWidgets import QWidget, QPushButton, QSizePolicy, QVBoxLayout
 from PyQt6.QtCore import pyqtSignal, Qt
-from ..utility.textHandler import getText
-from ..utility.projectNameHandler import getProjectNameLower
-from ..utility.buttonHandler import handleButton
+from ..utility.ui.menuHandler import makeMenuLayout
+from ..utility.data.textHandler import getText
+from ..utility.data.projectNameHandler import getProjectNameLower
+from ..utility.ui.buttonHandler import handleButton
 from functools import partial
 import asyncio
 
@@ -13,10 +14,7 @@ def createSettingsMenu(navigate, parent=None):
             super().__init__(parent)
             self.navigate = navigate
 
-            layout = QVBoxLayout()
-            layout.setContentsMargins(50, 50, 50, 50)
-            layout.setSpacing(20)
-            layout.addStretch()
+            layout = makeMenuLayout()
 
             self.keys = ["language", "resolution", "back"]
             self.layout_ref = layout

@@ -1,8 +1,10 @@
 from PyQt6.QtWidgets import QApplication, QMainWindow
 from PyQt6.QtCore import Qt, QTimer
-from .utility.projectNameHandler import getProjectName
-from .utility.resolutionHandler import getResolution, centerWindow, lockWindowSize
-from .utility.textHandler import getText
+from .utility.qtMessageHandler import installQtMessageHandler
+from .utility.ui.qssHandler import applyGlobalStyles
+from .utility.data.projectNameHandler import getProjectName
+from .utility.ui.resolutionHandler import getResolution, centerWindow, lockWindowSize
+from .utility.data.textHandler import getText
 from .gui.mainMenu import createMainMenu
 from .gui.settingsMenu import createSettingsMenu
 import asyncio
@@ -13,8 +15,17 @@ nest_asyncio.apply()
 
 
 def gameExec():
+    # Configure logging
+    installQtMessageHandler()
+
     # Create the Qt application
     app = QApplication(sys.argv)
+
+    # Try applying the global styling on the application
+    try:
+        applyGlobalStyles(app, "gui/styles")
+    except Exception as err:
+        print(f"Styling couldn't be loaded: {err}")
 
     loop = qasync.QEventLoop(app)
     asyncio.set_event_loop(loop)
