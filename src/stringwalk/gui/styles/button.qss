@@ -1,7 +1,7 @@
-/* Standard state of button */
-QPushButton, QComboBox {
-    background-color: #e74c3c; /* Rood */
-    color: white;
+/* Shared style for buttons and combobox frames */
+QPushButton,
+QComboBox {
+    background-color: #e74c3c;
     border: 2px solid #c0392b;
     border-radius: 10px;
     padding: 10px 20px;
@@ -11,26 +11,47 @@ QPushButton, QComboBox {
     margin-bottom: 20px;
 }
 
-/* Wanneer hovered over the button with a mouse */
-QPushButton:hover, QComboBox:hover {
-    background-color: #ff5e4d; /* Iets lichter rood */
+/* Hover */
+QPushButton:hover,
+QComboBox:hover {
+    background-color: #ff5e4d;
     border: 2px solid #e74c3c;
 }
 
-/* When the button is pressed */
-QPushButton:pressed, QComboBox:pressed {
-    background-color: #c0392b; /* Donkerder rood */
+/* Pressed */
+QPushButton:pressed,
+QComboBox:pressed {
+    background-color: #c0392b;
 }
 
-/* Styling for disabled buttons */
-QPushButton:disabled, QComboBox:disabled {
+/* Disabled */
+QPushButton:disabled,
+QComboBox:disabled {
     background-color: #95a5a6;
     border: 2px solid #7f8c8d;
     color: #bdc3c7;
 }
 
+/* Remove dropdown frame */
 QComboBox::drop-down {
-    border: none; 
-    background: transparent; /* Zorgt dat de rode kleur van de combobox doorloopt */
+    border: none;
+    background: transparent;
     width: 30px;
+}
+
+/* Fix editable text alignment + remove inherited padding */
+QComboBox QLineEdit {
+    padding: 0px;                     /* Prevent inherited padding */
+    margin: 0px;                      /* Prevent layout shift */
+    border: none;                     /* Prevent double borders */
+    background: transparent;          /* Keep red background */
+    color: white;
+    qproperty-alignment: AlignCenter; /* TRUE centering */
+}
+
+/* Visible dropdown arrow */
+QComboBox::down-arrow {
+    image: url(:/qt-project.org/styles/commonstyle/images/arrow-down-16.png);
+    width: 16px;
+    height: 16px;
 }

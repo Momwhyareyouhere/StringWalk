@@ -1,5 +1,5 @@
 from PyQt6.QtWidgets import QApplication, QWidget, QPushButton, QSizePolicy, QVBoxLayout
-from ..utility.ui.menuHandler import makeMenuLayout
+from ..utility.ui.menuHandler import makeMenuLayout, addMenuWidget, finalizeMenuLayout
 from ..utility.data.textHandler import getText
 from ..utility.audio.soundHandler import playSound
 from ..utility.data.projectNameHandler import getProjectNameLower
@@ -14,11 +14,13 @@ def createMainMenu(navigate, parent=None):
             super().__init__(parent)
             self.navigate = navigate
 
+            self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+
             # Main layout
-            layout = makeMenuLayout()
+            outer, inner = makeMenuLayout()
 
             self.keys = ["start", "settings", "exit"]
-            self.layout_ref = layout
+            self.layout_ref = inner
     
             loop = asyncio.get_event_loop()
 
@@ -27,7 +29,7 @@ def createMainMenu(navigate, parent=None):
             task = loop.create_task(getText(self.keys))
             task.add_done_callback(self.__texts_loaded)
 
-            self.setLayout(layout)
+            self.setLayout(outer)
 
         def __texts_loaded(self, task):
             texts = task.result()
@@ -45,12 +47,10 @@ def createMainMenu(navigate, parent=None):
 
             for text, action in zip(texts, actions):
                 btn = QPushButton(text)
-                btn.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
-                btn.setMinimumHeight(40)
-                btn.setMinimumWidth(200)
                 btn.clicked.connect(partial(handleButton, action, self))
-                self.layout_ref.addWidget(btn)
+                addMenuWidget(self.layout_ref, btn)
 
             self.layout_ref.addStretch()
+            finalizeMenuLayout(self)
 
-    return MainMenu(navigate, parent)
+    return MainMenu(navigate)

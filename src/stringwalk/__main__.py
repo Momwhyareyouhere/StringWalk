@@ -1,10 +1,12 @@
-from PyQt6.QtWidgets import QApplication, QMainWindow
+from PyQt6.QtWidgets import QApplication, QMainWindow, QSizePolicy
 from PyQt6.QtCore import Qt, QTimer
 from .utility.qtMessageHandler import installQtMessageHandler
-from .utility.ui.qssHandler import applyGlobalStyles
+from .utility.filter.SFXFilter import ButtonSFXFilter
+from .utility.ui.qssProcessor import applyGlobalStyles
 from .utility.data.projectNameHandler import getProjectName
 from .utility.ui.resolutionHandler import getResolution, centerWindow, lockWindowSize
 from .utility.data.textHandler import getText
+from .utility.ui.menuHandler import scaleMenuWidgets
 from .gui.mainMenu import createMainMenu
 from .gui.settingsMenu import createSettingsMenu
 import asyncio
@@ -20,6 +22,9 @@ def gameExec():
 
     # Create the Qt application
     app = QApplication(sys.argv)
+
+    sfx_filter = ButtonSFXFilter()
+    app.installEventFilter(sfx_filter)
 
     # Try applying the global styling on the application
     try:
@@ -38,7 +43,8 @@ def gameExec():
 
         def navigate(self, factory):
             """Replace central widget with a new menu instance."""
-            widget = factory(self.navigate, parent=self)
+            widget = factory(self.navigate)
+            widget.setSizePolicy( QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding )
             self.setCentralWidget(widget)
 
         def changeEvent(self, event):
@@ -65,15 +71,26 @@ def gameExec():
             self.showNormal()
             QTimer.singleShot(0, lambda: centerWindow(self))
 
+        def resizeEvent(self, event):
+            super().resizeEvent(event)
+
+            cw = self.centralWidget()
+            if cw:
+                w = self.width()
+                h = self.height()
+
+                # Scale relative to a reference resolution
+                scale = min(w / 1280, h / 720)
+                scale = max(scale, 0.6)  # never shrink below 60%
+
+                scaleMenuWidgets(cw, scale)
+
     async def setup():
         res = await getResolution()
-        fullscreen_text = await getText("fullscreen")
-        if isinstance(fullscreen_text, list):
-            fullscreen_text = fullscreen_text[0]
     
         main_window = MainWindow()
 
-        if res.lower() == fullscreen_text.lower():
+        if res.lower() == "fullscreen":
             main_window.showFullScreen()
         elif res.lower() == "maximized":
             main_window.showMaximized()

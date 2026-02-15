@@ -1,6 +1,6 @@
 from PyQt6.QtWidgets import QWidget, QPushButton, QSizePolicy, QVBoxLayout
 from PyQt6.QtCore import pyqtSignal, Qt
-from ..utility.ui.menuHandler import makeMenuLayout
+from ..utility.ui.menuHandler import makeMenuLayout, addMenuWidget, finalizeMenuLayout
 from ..utility.data.textHandler import getText
 from ..utility.data.projectNameHandler import getProjectNameLower
 from ..utility.ui.buttonHandler import handleButton
@@ -14,16 +14,16 @@ def createSettingsMenu(navigate, parent=None):
             super().__init__(parent)
             self.navigate = navigate
 
-            layout = makeMenuLayout()
+            outer, inner = makeMenuLayout()
 
             self.keys = ["language", "resolution", "back"]
-            self.layout_ref = layout
+            self.layout_ref = inner
 
             loop = asyncio.get_event_loop()
             task = loop.create_task(getText(self.keys))
             task.add_done_callback(self.__texts_loaded)
 
-            self.setLayout(layout)
+            self.setLayout(outer)
 
         def __texts_loaded(self, task):
             texts = task.result()
@@ -51,11 +51,10 @@ def createSettingsMenu(navigate, parent=None):
 
             for text, action in zip(texts, actions):
                 btn = QPushButton(text)
-                btn.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
-                btn.setMinimumHeight(40)
-                btn.setMinimumWidth(200)
                 btn.clicked.connect(partial(handleButton, action, self))
-                self.layout_ref.addWidget(btn)
+                addMenuWidget(self.layout_ref, btn)
 
             self.layout_ref.addStretch()
+            finalizeMenuLayout(self)
+
     return SettingsMenu(navigate, parent)

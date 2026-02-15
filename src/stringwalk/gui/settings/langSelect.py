@@ -3,6 +3,7 @@ from PyQt6.QtCore import pyqtSignal, Qt
 import asyncio
 import glob
 from pathlib import Path
+from ...utility.ui.menuHandler import makeMenuLayout, addMenuWidget, finalizeMenuLayout
 from ...utility.jsonParser import parseJson
 from ...utility.data.languageHandler import setLanguage
 from ...utility.data.textHandler import getText
@@ -17,11 +18,10 @@ def createlangSelect(navigate, parent=None):
             super().__init__(parent)
             self.navigate = navigate
 
-            self.layout_ref = QVBoxLayout()
-            self.layout_ref.setContentsMargins(50, 50, 50, 50)
-            self.layout_ref.setSpacing(20)
-            self.layout_ref.addStretch()
-            self.setLayout(self.layout_ref)
+            outer, inner = makeMenuLayout()
+
+            self.layout_ref = inner
+            self.setLayout(outer)
 
             current_dir = Path(__file__).resolve().parent
             i18n_dir = current_dir.parent.parent / "i18n"
@@ -56,25 +56,20 @@ def createlangSelect(navigate, parent=None):
             # Create language buttons
             for name, code in self.languages:
                 lang_btn = QPushButton(name)
-                lang_btn.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
-                lang_btn.setMinimumHeight(40)
-                lang_btn.setMinimumWidth(200)
                 lang_btn.clicked.connect(lambda checked, c=code: asyncio.create_task(self.setLanguageAndReload(c)))
-                self.layout_ref.addWidget(lang_btn)
+                addMenuWidget(self.layout_ref, lang_btn)
 
             # Back button
             back_btn = QPushButton(texts)
-            back_btn.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
-            back_btn.setMinimumHeight(40)
-            back_btn.setMinimumWidth(200)
             back_btn.clicked.connect(
                 lambda: self.navigate(
                     __import__(f"{getProjectNameLower()}.gui.settingsMenu", fromlist=["createSettingsMenu"]).createSettingsMenu
                 )
             )
-            self.layout_ref.addWidget(back_btn)
+            addMenuWidget(self.layout_ref, back_btn)
 
             self.layout_ref.addStretch()
+            finalizeMenuLayout(self)
 
         async def setLanguageAndReload(self, lang_code):
             await setLanguage(lang_code)
