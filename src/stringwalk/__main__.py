@@ -1,5 +1,5 @@
-from PyQt6.QtWidgets import QApplication, QMainWindow, QPushButton
-from PyQt6.QtCore import QTimer
+from PyQt6.QtWidgets import QApplication, QMainWindow
+from PyQt6.QtCore import Qt, QTimer
 from .utility.projectNameHandler import getProjectName
 from .utility.resolutionHandler import getResolution, centerWindow, lockWindowSize
 from .gui.mainMenu import createMainMenu

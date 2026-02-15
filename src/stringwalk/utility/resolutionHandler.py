@@ -21,16 +21,29 @@ async def getResolution():
     return result
 
 def centerWindow(window):
-    QApplication.processEvents()
+    """
+    Center a top-level window on its screen (DPI-safe)
+    """
+    screen = window.screen() or QApplication.primaryScreen()
+    screen_geo = screen.availableGeometry()  # logical pixels
+    win_geo = window.geometry()              # logical pixels
 
-    qr = window.frameGeometry()
-    cp = window.screen().availableGeometry().center()
+    x = screen_geo.x() + (screen_geo.width() - win_geo.width()) // 2
+    y = screen_geo.y() + (screen_geo.height() - win_geo.height()) // 2
 
-    qr.moveCenter(cp)
-
-    window.move(qr.topLeft())
+    window.move(x, y)
 
 def lockWindowSize(window, width, height):
-    window.setMinimumSize(width, height)
-    window.setMaximumSize(width, height)
-    window.resize(width, height)
+    """
+    Lock window size in logical pixels, respecting DPI scaling.
+    width/height = desired physical pixels
+    """
+    screen = window.screen() or QApplication.primaryScreen()
+    dpr = screen.devicePixelRatio()
+
+    logical_width = int(width / dpr)
+    logical_height = int(height / dpr)
+
+    window.setMinimumSize(logical_width, logical_height)
+    window.setMaximumSize(logical_width, logical_height)
+    window.resize(logical_width, logical_height)

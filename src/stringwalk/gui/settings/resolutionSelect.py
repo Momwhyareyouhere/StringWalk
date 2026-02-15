@@ -41,6 +41,9 @@ def createresolutionSelect(navigate, parent=None):
            
             # Dropdown menu
             res_dropdown = QComboBox()
+            res_dropdown.setEditable(True)
+            res_dropdown.lineEdit().setAlignment(Qt.AlignmentFlag.AlignCenter)
+            res_dropdown.lineEdit().setReadOnly(True)
             res_dropdown.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
             res_dropdown.setMinimumHeight(40)
             res_dropdown.setMinimumWidth(200)
@@ -71,17 +74,22 @@ def createresolutionSelect(navigate, parent=None):
 
         async def setResolutionAndReload(self, resolution):
             await writeConfigItem("current_resolution", resolution)
-            
-            try:
-                width, height = map(int, resolution.split("x"))
-                window = self.window()
-                if window:
+
+            window = self.nativeParentWidget()
+            if not window:
+                return
+
+            if resolution.lower() == "fullscreen":
+                window.showFullScreen()
+            elif resolution.lower() == "maximized":
+                window.showMaximized()
+            else:
+                try:
+                    width, height = map(int, resolution.split("x"))
                     lockWindowSize(window, width, height)
-                    window.updateGeometry()
-                    if window.centralWidget():
-                        window.centralWidget().adjustSize()
-                    QTimer.singleShot(50, lambda: centerWindow(window))
-            except (ValueError, AttributeError) as err:
-                print (f"Could not rescale window: {err}")
+                    window.adjustSize()
+                    QTimer.singleShot(0, lambda: centerWindow(window))
+                except ValueError:
+                    print(f"Invalid resolution: {resolution}")
 
     return resolutionSelect(navigate, parent)
