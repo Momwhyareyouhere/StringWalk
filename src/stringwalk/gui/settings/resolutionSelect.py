@@ -48,6 +48,8 @@ def createresolutionSelect(navigate, parent=None):
             res_dropdown.setMinimumHeight(40)
             res_dropdown.setMinimumWidth(200)
 
+            res_dropdown.clear()
+
             items = list(resolutions)
 
             if fullscreen and fullscreen not in items:
