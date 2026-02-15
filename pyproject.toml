@@ -24,11 +24,11 @@ where = ["src"]
 
 [tool.setuptools.package-data]
 stringwalk = [
-    "assets/**/*.json",
+    "**/*.json",
     "assets/**/*.mp3",
     "assets/**/*.wav",
     "assets/**/*.png",
     "assets/**/*.jpg",
     "assets/**/*.svg",
-    "assets/**/*.qss"
+    "**/*.qss"
 ]
