@@ -4,6 +4,7 @@ from PyQt6.QtMultimedia import QMediaPlayer, QAudioOutput
 from PyQt6.QtCore import QUrl
 from importlib import resources
 from ..data.projectNameHandler import getProjectNameLower
+from ..jsonParser import parseJson
 
 class AudioManager:
     def __init__(self):
@@ -14,6 +15,7 @@ class AudioManager:
         self.sfx_player = QMediaPlayer()
         self.sfx_output = QAudioOutput()
         self.sfx_player.setAudioOutput(self.sfx_output)
+        self.sfx_map = self._load_sfx_map()
 
         self.current_music = None
     
@@ -58,5 +60,14 @@ class AudioManager:
         self.sfx_player.setSource(url)
         self.sfx_player.play()
         self._restore_ffmpeg()
+
+    def _load_sfx_map(self):
+        path = self._resolve("sfx", "map.json")
+        data = parseJson(str(path))
+        return data or {}
+
+    def get_sfx_for(self, widget, event_name):
+        wtype = type(widget).__name__
+        return self.sfx_map.get(wtype, {}).get(event_name)
 
 audio = AudioManager()

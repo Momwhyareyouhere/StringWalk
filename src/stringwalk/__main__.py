@@ -1,7 +1,7 @@
 from PyQt6.QtWidgets import QApplication, QMainWindow, QSizePolicy
 from PyQt6.QtCore import Qt, QTimer
 from .utility.qtMessageHandler import installQtMessageHandler
-from .utility.filter.SFXFilter import ButtonSFXFilter
+from .utility.filter.SFXFilter import SFXFilter
 from .utility.ui.qssProcessor import applyGlobalStyles
 from .utility.data.projectNameHandler import getProjectName
 from .utility.ui.resolutionHandler import getResolution, centerWindow, lockWindowSize
@@ -23,7 +23,7 @@ def gameExec():
     # Create the Qt application
     app = QApplication(sys.argv)
 
-    sfx_filter = ButtonSFXFilter()
+    sfx_filter = SFXFilter()
     app.installEventFilter(sfx_filter)
 
     # Try applying the global styling on the application

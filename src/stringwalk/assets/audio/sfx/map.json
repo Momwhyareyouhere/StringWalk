@@ -1,0 +1,5 @@
+{
+    "QPushButton": {
+        "MouseButtonPress": "button_click.mp3"
+    }
+}
