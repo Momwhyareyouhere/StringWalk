@@ -26,7 +26,7 @@ def centerWindow(window):
     """
     screen = window.screen() or QApplication.primaryScreen()
     screen_geo = screen.availableGeometry()  # logical pixels
-    win_geo = window.geometry()              # logical pixels
+    win_geo = window.frameGeometry()         # logical pixels
 
     x = screen_geo.x() + (screen_geo.width() - win_geo.width()) // 2
     y = screen_geo.y() + (screen_geo.height() - win_geo.height()) // 2

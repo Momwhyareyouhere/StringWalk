@@ -10,5 +10,6 @@
     "resolution": "Resolution",
     "back": "Back",
 
-    "fullscreen": "Fullscreen"
+    "fullscreen": "Fullscreen",
+    "maximized": "Maximized"
 }

@@ -41,6 +41,30 @@ def gameExec():
             widget = factory(self.navigate, parent=self)
             self.setCentralWidget(widget)
 
+        def changeEvent(self, event):
+            super().changeEvent(event)
+
+            if event.type() == event.Type.WindowStateChange:
+                new = self.windowState()
+                old = event.oldState()
+
+                # KDE fullscreen → normal fix
+                if old == Qt.WindowState.WindowFullScreen and new == Qt.WindowState.WindowNoState:
+                    # Step 1: hide to force decoration recalculation
+                    self.hide()
+
+                    # Step 2: showNormal and center after decorations are applied
+                    QTimer.singleShot(0, lambda: self._kde_restore_and_center())
+                    return
+
+                # Normal unmaximize case
+                if new == Qt.WindowState.WindowNoState:
+                    QTimer.singleShot(0, lambda: centerWindow(self))
+
+        def _kde_restore_and_center(self):
+            self.showNormal()
+            QTimer.singleShot(0, lambda: centerWindow(self))
+
     async def setup():
         res = await getResolution()
         fullscreen_text = await getText("fullscreen")
