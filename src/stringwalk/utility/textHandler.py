@@ -26,5 +26,8 @@ async def getText(keys):
 
     results = [parseJson(json_path, key) for key in keys]
 
+    if single:
+        return results[0]
+
     # Return result(s)
     return results

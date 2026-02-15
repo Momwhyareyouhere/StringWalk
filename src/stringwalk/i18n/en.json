@@ -8,5 +8,7 @@
 
     "language": "Language",
     "resolution": "Resolution",
-    "back": "Back"
+    "back": "Back",
+
+    "fullscreen": "Fullscreen"
 }

@@ -27,15 +27,16 @@ def createresolutionSelect(navigate, parent=None):
 
             self.all_task = asyncio.gather(
                 readConfigItem("resolutions", default=["800x600"]),
-                getText(["back"]),
-                getResolution()
+                getText("back"),
+                getResolution(),
+                getText("fullscreen")
             )
             self.all_task.add_done_callback(self.__tasks_loaded)
 
         def __tasks_loaded(self, task):
             try:
                 if not self.layout_ref: return
-                resolutions, texts, current_res = task.result()
+                resolutions, texts, current_res, fullscreen = task.result()
             except (RuntimeError, Exception):
                 return
            
@@ -43,23 +44,25 @@ def createresolutionSelect(navigate, parent=None):
             res_dropdown = QComboBox()
             res_dropdown.setEditable(True)
             res_dropdown.lineEdit().setAlignment(Qt.AlignmentFlag.AlignCenter)
-            res_dropdown.lineEdit().setReadOnly(True)
             res_dropdown.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
             res_dropdown.setMinimumHeight(40)
             res_dropdown.setMinimumWidth(200)
-            res_dropdown.addItems(resolutions)
-            if current_res in resolutions:
-                res_dropdown.setCurrentText(current_res)
-            else:
+
+            items = list(resolutions)
+
+            if fullscreen and fullscreen not in items:
+                items.append(fullscreen)
+            res_dropdown.addItems(items)
+            if current_res and current_res not in items:
                 res_dropdown.addItem(current_res)
-                res_dropdown.setCurrentText(current_res)
+            res_dropdown.setCurrentText(current_res)
             res_dropdown.currentTextChanged.connect(
                 lambda r: asyncio.create_task(self.setResolutionAndReload(r))
             )
             self.layout_ref.addWidget(res_dropdown)
 
             # Back button
-            back_btn = QPushButton(texts[0])
+            back_btn = QPushButton(texts)
             back_btn.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
             back_btn.setMinimumHeight(40)
             back_btn.setMinimumWidth(200)
@@ -79,7 +82,11 @@ def createresolutionSelect(navigate, parent=None):
             if not window:
                 return
 
-            if resolution.lower() == "fullscreen":
+            fullscreen_text = (await getText("fullscreen"))
+            if isinstance(fullscreen_text, list):
+                fullscreen_text = fullscreen_text[0]
+
+            if resolution.lower() == fullscreen_text.lower():
                 window.showFullScreen()
             elif resolution.lower() == "maximized":
                 window.showMaximized()

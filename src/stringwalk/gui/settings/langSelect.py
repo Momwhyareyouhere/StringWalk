@@ -36,7 +36,7 @@ def createlangSelect(navigate, parent=None):
                     self.languages.append((name, code))
 
             loop = asyncio.get_event_loop()
-            task = loop.create_task(getText(["back"]))
+            task = loop.create_task(getText("back"))
             task.add_done_callback(self.__texts_loaded)
 
         def __texts_loaded(self, task):
@@ -63,7 +63,7 @@ def createlangSelect(navigate, parent=None):
                 self.layout_ref.addWidget(lang_btn)
 
             # Back button
-            back_btn = QPushButton(texts[0])
+            back_btn = QPushButton(texts)
             back_btn.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
             back_btn.setMinimumHeight(40)
             back_btn.setMinimumWidth(200)

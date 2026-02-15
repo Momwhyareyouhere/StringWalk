@@ -2,6 +2,7 @@ from PyQt6.QtWidgets import QApplication, QMainWindow
 from PyQt6.QtCore import Qt, QTimer
 from .utility.projectNameHandler import getProjectName
 from .utility.resolutionHandler import getResolution, centerWindow, lockWindowSize
+from .utility.textHandler import getText
 from .gui.mainMenu import createMainMenu
 from .gui.settingsMenu import createSettingsMenu
 import asyncio
@@ -31,17 +32,26 @@ def gameExec():
 
     async def setup():
         res = await getResolution()
-        try:
-            x, y = map(int, res.split("x"))
-        except (ValueError, AttributeError):
-            x, y = 800, 600
+        fullscreen_text = await getText("fullscreen")
+        if isinstance(fullscreen_text, list):
+            fullscreen_text = fullscreen_text[0]
     
         main_window = MainWindow()
-        lockWindowSize(main_window, x, y)
+
+        if res.lower() == fullscreen_text.lower():
+            main_window.showFullScreen()
+        elif res.lower() == "maximized":
+            main_window.showMaximized()
+        else:
+            try:
+                x, y = map(int, res.split("x"))
+            except ValueError:
+                x, y = 800, 600
+            lockWindowSize(main_window, x, y)
+            main_window.show()    
+            QTimer.singleShot(0, lambda: centerWindow(main_window))
+
         main_window.navigate(createMainMenu)
-        main_window.show()
-        
-        QTimer.singleShot(0, lambda: centerWindow(main_window))
 
     main_window = loop.run_until_complete(setup())
 
