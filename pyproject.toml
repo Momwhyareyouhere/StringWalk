@@ -23,4 +23,12 @@ include-package-data = true
 where = ["src"]
 
 [tool.setuptools.package-data]
-"stringwalk" = ["**/*.json"]
+stringwalk = [
+    "assets/**/*.json",
+    "assets/**/*.mp3",
+    "assets/**/*.wav",
+    "assets/**/*.png",
+    "assets/**/*.jpg",
+    "assets/**/*.svg",
+    "assets/**/*.qss"
+]
