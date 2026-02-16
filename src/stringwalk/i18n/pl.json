@@ -1,0 +1,15 @@
+{
+    "lang_name": "Polski",
+    
+    "title": "StringWalk",
+    "start": "Start",
+    "settings": "Ustawienia",
+    "exit": "Wyjście",
+
+    "language": "Język",
+    "resolution": "Rozdzielczość",
+    "back": "Wróć",
+
+    "fullscreen": "Pełny ekran",
+    "maximized": "Zmaksymalizowane"
+}
