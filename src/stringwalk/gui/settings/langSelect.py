@@ -1,5 +1,4 @@
-from PyQt6.QtWidgets import QWidget, QPushButton, QSizePolicy, QVBoxLayout
-from PyQt6.QtCore import pyqtSignal, Qt
+from PyQt6.QtWidgets import QPushButton
 import asyncio
 import glob
 from pathlib import Path
@@ -10,8 +9,6 @@ from ...utility.data.languageHandler import setLanguage
 from ...utility.data.textHandler import getText
 from ...utility.data.projectNameHandler import getProjectNameLower
 from ...utility.ui.menuRefresh import refresh_all_menus
-from functools import partial
-import os
 
 
 def createlangSelect(navigate, parent=None):

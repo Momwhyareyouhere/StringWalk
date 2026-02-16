@@ -1,19 +1,12 @@
-from PyQt6.QtWidgets import QApplication, QWidget, QComboBox, QPushButton, QSizePolicy, QVBoxLayout
-from PyQt6.QtCore import pyqtSignal, Qt, QTimer
-from PyQt6.QtGui import QPalette, QColor
+from PyQt6.QtWidgets import QComboBox, QPushButton
+from PyQt6.QtCore import Qt, QTimer
 import asyncio
-import glob
-from pathlib import Path
 from ...utility.ui.asyncWidget import AsyncWidget
 from ...utility.ui.menuHandler import makeMenuLayout, addMenuWidget, finalizeMenuLayout
 from ...utility.configHandler import readConfigItem, writeConfigItem
-from ...utility.jsonParser import parseJson
-from ...utility.data.languageHandler import setLanguage
 from ...utility.data.textHandler import getText
 from ...utility.ui.resolutionHandler import getResolution, lockWindowSize, centerWindow
 from ...utility.data.projectNameHandler import getProjectNameLower
-from functools import partial
-import os
 
 
 def createresolutionSelect(navigate, parent=None):
