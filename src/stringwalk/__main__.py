@@ -7,6 +7,7 @@ from .utility.ui.qssProcessor import applyGlobalStyles
 from .utility.data.projectNameHandler import getProjectName
 from .utility.ui.resolutionHandler import getResolution, centerWindow, lockWindowSize
 from .gui.mainMenu import createMainMenu
+import asyncio
 
 
 async def gameExec():
@@ -122,4 +123,6 @@ async def gameExec():
 
         return main_window
     
-    await setup()
+    main_window = await setup()
+
+    await asyncio.Event().wait()
