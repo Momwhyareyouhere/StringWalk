@@ -1,30 +1,54 @@
-/* Shared style for buttons and combobox frames */
+/* Shared base style for buttons and comboboxes */
 QPushButton,
 QComboBox {
-    background-color: #e74c3c;
-    border: 2px solid #c0392b;
     border-radius: 10px;
     padding: 10px 20px;
     font-size: 18px;
     font-weight: bold;
     min-width: 150px;
     margin-bottom: 20px;
+    color: white;
 }
 
-/* Hover */
+/* Default (red) variant */
+QPushButton,
+QComboBox {
+    background-color: #e74c3c;
+    border: 2px solid #c0392b;
+}
+
+/* Blue "setting" variant */
+QPushButton[variant="setting"],
+QComboBox[variant="setting"] {
+    background-color: #3498db;
+    border: 2px solid #2772a4;
+}
+
+/* Hover states */
 QPushButton:hover,
 QComboBox:hover {
     background-color: #ff5e4d;
     border: 2px solid #e74c3c;
 }
 
-/* Pressed */
+QPushButton[variant="setting"]:hover,
+QComboBox[variant="setting"]:hover {
+    background-color: #5dade2;
+    border: 2px solid #3498db;
+}
+
+/* Pressed states */
 QPushButton:pressed,
 QComboBox:pressed {
     background-color: #c0392b;
 }
 
-/* Disabled */
+QPushButton[variant="setting"]:pressed,
+QComboBox[variant="setting"]:pressed {
+    background-color: #2772a4;
+}
+
+/* Disabled state (shared) */
 QPushButton:disabled,
 QComboBox:disabled {
     background-color: #95a5a6;
@@ -32,7 +56,7 @@ QComboBox:disabled {
     color: #bdc3c7;
 }
 
-/* Remove dropdown frame */
+/* Remove dropdown frame for QComboBox */
 QComboBox::drop-down {
     border: none;
     background: transparent;
@@ -41,12 +65,12 @@ QComboBox::drop-down {
 
 /* Fix editable text alignment + remove inherited padding */
 QComboBox QLineEdit {
-    padding: 0px;                     /* Prevent inherited padding */
-    margin: 0px;                      /* Prevent layout shift */
-    border: none;                     /* Prevent double borders */
-    background: transparent;          /* Keep red background */
+    padding: 0px;
+    margin: 0px;
+    border: none;
+    background: transparent;
     color: white;
-    qproperty-alignment: AlignCenter; /* TRUE centering */
+    qproperty-alignment: AlignCenter;
 }
 
 /* Visible dropdown arrow */

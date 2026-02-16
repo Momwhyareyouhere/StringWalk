@@ -74,6 +74,7 @@ def createresolutionSelect(navigate, parent=None):
 
             # Dropdown menu
             res_dropdown = QComboBox()
+            res_dropdown.setProperty("variant", "setting")
             res_dropdown.setEditable(True)
             res_dropdown.lineEdit().setAlignment(Qt.AlignmentFlag.AlignCenter)
 
@@ -129,7 +130,7 @@ def createresolutionSelect(navigate, parent=None):
                 return
 
             # Minimum allowed resolution
-            MIN_W, MIN_H = 640, 480
+            MIN_W, MIN_H = 800, 600
 
             if w < MIN_W or h < MIN_H:
                 self._set_invalid()
@@ -138,12 +139,12 @@ def createresolutionSelect(navigate, parent=None):
 
         def _set_invalid(self):
             self.valid_resolution = False
-            line = self.res_dropdown.lineEdit()
+            line = self.res_dropdown
             line.setStyleSheet("color: darkred;")
 
         def _set_valid(self):
             self.valid_resolution = True
-            line = self.res_dropdown.lineEdit()
+            line = self.res_dropdown
             line.setStyleSheet("color: white;")
 
         async def setResolutionAndReload(self, display_value):

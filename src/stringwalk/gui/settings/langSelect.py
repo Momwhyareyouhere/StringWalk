@@ -56,6 +56,7 @@ def createlangSelect(navigate, parent=None):
             # Create language buttons
             for name, code in self.languages:
                 lang_btn = QPushButton(name)
+                lang_btn.setProperty("variant", "setting")
                 lang_btn.clicked.connect(lambda checked, c=code: asyncio.create_task(self.setLanguageAndReload(c)))
                 addMenuWidget(self.layout_ref, lang_btn)
 

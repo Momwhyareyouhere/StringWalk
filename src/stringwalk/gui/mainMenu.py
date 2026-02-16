@@ -24,7 +24,7 @@ def createMainMenu(navigate, parent=None):
     
             loop = asyncio.get_event_loop()
 
-            music = playSound("music", "lobby.mp3")
+            playSound("music", "lobby.mp3")
 
             task = loop.create_task(getText(self.keys))
             task.add_done_callback(self.__texts_loaded)
@@ -52,5 +52,11 @@ def createMainMenu(navigate, parent=None):
 
             self.layout_ref.addStretch()
             finalizeMenuLayout(self)
+        
+        def refresh(self):
+            # Re-fetch texts, config, whatever dynamic stuff you need
+            loop = asyncio.get_event_loop()
+            task = loop.create_task(getText(self.keys))
+            task.add_done_callback(self.__texts_loaded)
 
     return MainMenu(navigate)

@@ -1,39 +1,26 @@
-from PyQt6.QtWidgets import QApplication, QMainWindow, QSizePolicy
+from PyQt6.QtWidgets import QApplication, QMainWindow, QSizePolicy, QWidget, QVBoxLayout, QStackedLayout
 from PyQt6.QtCore import Qt, QTimer
 from .utility.qtMessageHandler import installQtMessageHandler
 from .utility.filter.SFXFilter import SFXFilter
+from .utility.video.videoManager import VideoManager
 from .utility.ui.qssProcessor import applyGlobalStyles
 from .utility.data.projectNameHandler import getProjectName
 from .utility.ui.resolutionHandler import getResolution, centerWindow, lockWindowSize
-from .utility.data.textHandler import getText
-from .utility.ui.menuHandler import scaleMenuWidgets
 from .gui.mainMenu import createMainMenu
-from .gui.settingsMenu import createSettingsMenu
-import asyncio
-import sys
-import qasync
-import nest_asyncio
-nest_asyncio.apply()
 
 
-def gameExec():
+async def gameExec():
     # Configure logging
     installQtMessageHandler()
 
-    # Create the Qt application
-    app = QApplication(sys.argv)
-
     sfx_filter = SFXFilter()
-    app.installEventFilter(sfx_filter)
+    QApplication.instance().installEventFilter(sfx_filter)
 
     # Try applying the global styling on the application
     try:
-        applyGlobalStyles(app, "gui/styles")
+        applyGlobalStyles(QApplication.instance(), "gui/styles")
     except Exception as err:
         print(f"Styling couldn't be loaded: {err}")
-
-    loop = qasync.QEventLoop(app)
-    asyncio.set_event_loop(loop)
 
     class MainWindow(QMainWindow):
         def __init__(self):
@@ -41,11 +28,48 @@ def gameExec():
             title = getProjectName()
             self.setWindowTitle(title)
 
+            # Central container
+            self.central_container = QWidget(self)
+            self.setCentralWidget(self.central_container)
+
+            # Video background (fills whole container)
+            self.video_manager = VideoManager(self.central_container)
+            self.video_manager.setGeometry(self.central_container.rect())
+            self.video_manager.show()
+            self.video_manager.play_video("lobby.mp4")
+
+            # Menu container on top (transparent)
+            self.menu_container = QWidget(self.central_container)
+            self.menu_container.setGeometry(self.central_container.rect())
+            self.menu_container.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
+            self.menu_container.raise_()
+            self.menu_container.show()
+
+            # Stacked layout for smooth menu switching
+            self.menu_layout = QStackedLayout(self.menu_container)
+            self.menu_layout.setContentsMargins(0, 0, 0, 0)
+
+            # Store already-created menus to avoid flicker
+            self.menu_widgets = {}
+
         def navigate(self, factory):
-            """Replace central widget with a new menu instance."""
-            widget = factory(self.navigate)
-            widget.setSizePolicy( QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding )
-            self.setCentralWidget(widget)
+            """Replace menu widgets inside menu_container."""
+            key = factory.__name__
+
+            if key not in self.menu_widgets:
+                # Create menu widget once
+                widget = factory(self.navigate)
+                widget.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+                self.menu_layout.addWidget(widget)
+                self.menu_widgets[key] = widget
+            else:
+                widget = self.menu_widgets[key]
+                # Refresh dynamic content
+                if hasattr(widget, "refresh"):
+                    widget.refresh()
+
+            # Switch instantly
+            self.menu_layout.setCurrentWidget(self.menu_widgets[key])
 
         def changeEvent(self, event):
             super().changeEvent(event)
@@ -73,17 +97,8 @@ def gameExec():
 
         def resizeEvent(self, event):
             super().resizeEvent(event)
-
-            cw = self.centralWidget()
-            if cw:
-                w = self.width()
-                h = self.height()
-
-                # Scale relative to a reference resolution
-                scale = min(w / 1280, h / 720)
-                scale = max(scale, 0.6)  # never shrink below 60%
-
-                scaleMenuWidgets(cw, scale)
+            self.video_manager.setGeometry(self.central_container.rect())
+            self.menu_container.setGeometry(self.central_container.rect())
 
     async def setup():
         res = await getResolution()
@@ -105,14 +120,6 @@ def gameExec():
 
         main_window.navigate(createMainMenu)
 
-    main_window = loop.run_until_complete(setup())
-
-    with loop:
-        loop.run_forever()
-
-if __name__ == "__main__":
-    try:
-        gameExec()
-    except Exception:
-        print("Oh no! Something went wrong.")
-        raise
+        return main_window
+    
+    await setup()
