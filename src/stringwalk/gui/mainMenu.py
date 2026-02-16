@@ -52,11 +52,5 @@ def createMainMenu(navigate, parent=None):
 
             self.layout_ref.addStretch()
             finalizeMenuLayout(self)
-        
-        def refresh(self):
-            # Re-fetch texts, config, whatever dynamic stuff you need
-            loop = asyncio.get_event_loop()
-            task = loop.create_task(getText(self.keys))
-            task.add_done_callback(self.__texts_loaded)
 
     return MainMenu(navigate)

@@ -8,11 +8,18 @@ from .utility.data.projectNameHandler import getProjectName
 from .utility.ui.resolutionHandler import getResolution, centerWindow, lockWindowSize
 from .gui.mainMenu import createMainMenu
 import asyncio
+import sys
+import qasync
+import nest_asyncio
+nest_asyncio.apply()
 
 
-async def gameExec(app: QApplication):
+def gameExec():
     # Configure logging
     installQtMessageHandler()
+
+    # Create the Qt application
+    app = QApplication(sys.argv)
 
     sfx_filter = SFXFilter()
     app.installEventFilter(sfx_filter)
@@ -22,6 +29,9 @@ async def gameExec(app: QApplication):
         applyGlobalStyles(app, "gui/styles")
     except Exception as err:
         print(f"Styling couldn't be loaded: {err}")
+
+    loop = qasync.QEventLoop(app)
+    asyncio.set_event_loop(loop)
 
     class MainWindow(QMainWindow):
         def __init__(self):
@@ -54,20 +64,10 @@ async def gameExec(app: QApplication):
             self.menu_widgets = {}
 
         def navigate(self, factory):
-            """Replace menu widgets inside menu_container."""
-            key = factory.__name__
-
-            if key not in self.menu_widgets:
-                # Create menu widget once
-                widget = factory(self.navigate)
-                widget.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
-                self.menu_layout.addWidget(widget)
-                self.menu_widgets[key] = widget
-            else:
-                widget = self.menu_widgets[key]
-                # Refresh dynamic content
-                if hasattr(widget, "refresh"):
-                    widget.refresh()
+            """Replace central widget with a new menu instance."""
+            widget = factory(self.navigate)
+            widget.setSizePolicy( QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding )
+            self.setCentralWidget(widget)
 
             # Switch instantly
             self.menu_layout.setCurrentWidget(self.menu_widgets[key])
@@ -123,6 +123,14 @@ async def gameExec(app: QApplication):
 
         return main_window
     
-    main_window = await setup()
+    main_window = loop.run_until_complete(setup())
 
-    await asyncio.Event().wait()
+    with loop:
+        loop.run_forever()
+
+if __name__ == "__main__":
+    try:
+        gameExec()
+    except Exception:
+        print("Oh no! Something went wrong.")
+        raise
