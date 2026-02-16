@@ -2,7 +2,7 @@ from PyQt6.QtWidgets import QVBoxLayout, QWidget, QSizePolicy, QPushButton
 
 # Default button sizes for consistency
 DEFAULT_BUTTON_WIDTH = 250
-DEFAULT_BUTTON_HEIGHT = 60
+DEFAULT_BUTTON_HEIGHT = 80
 DEFAULT_LAYOUT_MARGIN = 50
 DEFAULT_LAYOUT_SPACING = 20
 

@@ -37,7 +37,11 @@ class VideoManager(QWidget):
         self.view.setGeometry(self.rect())
         # Scale the video item to fill the view (keep aspect ratio)
         rect = self.view.rect()
-        self.video_item.setSize(QSizeF(rect.width(), rect.height()))
+
+        w = max(rect.width(), 1)
+        h = max(rect.height(), 1)
+
+        self.video_item.setSize(QSizeF(float(w), float(h)))
 
     def play_video(self, filename: str):
         from pathlib import Path
@@ -50,8 +54,9 @@ class VideoManager(QWidget):
         self.player.play()
 
     def stop_video(self):
-        """Stops the video playback and resets the media player."""
+        """Stops the video playback safely."""
         if self.player.playbackState() != QMediaPlayer.PlaybackState.StoppedState:
             self.player.stop()
-        # Optionally clear the video item
-        self.player.setVideoOutput(None)
+
+        # Detach media safely
+        self.player.setSource(QUrl())
