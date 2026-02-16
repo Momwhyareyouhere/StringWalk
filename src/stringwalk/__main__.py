@@ -10,16 +10,16 @@ from .gui.mainMenu import createMainMenu
 import asyncio
 
 
-async def gameExec():
+async def gameExec(app: QApplication):
     # Configure logging
     installQtMessageHandler()
 
     sfx_filter = SFXFilter()
-    QApplication.instance().installEventFilter(sfx_filter)
+    app.installEventFilter(sfx_filter)
 
     # Try applying the global styling on the application
     try:
-        applyGlobalStyles(QApplication.instance(), "gui/styles")
+        applyGlobalStyles(app, "gui/styles")
     except Exception as err:
         print(f"Styling couldn't be loaded: {err}")
 

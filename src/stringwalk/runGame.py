@@ -10,7 +10,7 @@ def main():
     loop = QEventLoop(app)
     asyncio.set_event_loop(loop)
 
-    loop.create_task(gameExec())
+    loop.create_task(gameExec(app))
 
     with loop:
         loop.run_forever()
