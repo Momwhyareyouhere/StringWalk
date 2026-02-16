@@ -4,25 +4,10 @@ from ..audio.audioManager import audio
 
 class SFXFilter(QObject):
     def eventFilter(self, obj, event):
-        event_name = None
-        if event.type() == QEvent.Type.MouseButtonPress:
-            event_name = "MouseButtonPress"
-        elif event.type() == QEvent.Type.MouseButtonRelease:
-            event_name = "MouseButtonRelease"
-        elif event.type() == QEvent.Type.Enter:
-            event_name = "HoverEnter"
-        elif event.type() == QEvent.Type.Leave:
-            event_name = "HoverLeave"
-        elif event.type() == QEvent.Type.Show:
-            event_name = "PopupShow"
-
-        if event_name:
-            w = obj
-            while w is not None:
-                sfx = audio.get_sfx_for(w, event_name)
-                if sfx:
-                    audio.play_sfx(sfx)
-                    break
-                w = w.parent()
-
+        # Only handle mouse press/release and hover events
+        if event.type() in (QEvent.Type.MouseButtonPress, QEvent.Type.MouseButtonRelease,
+                            QEvent.Type.Enter, QEvent.Type.Leave, QEvent.Type.Show):
+            sfx = audio.get_sfx_for(obj, event.type().name)  # map type to your SFX name
+            if sfx:
+                audio.play_sfx(sfx)
         return super().eventFilter(obj, event)

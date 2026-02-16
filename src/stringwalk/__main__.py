@@ -11,6 +11,7 @@ import asyncio
 import sys
 import qasync
 import nest_asyncio
+from functools import partial
 nest_asyncio.apply()
 
 
@@ -63,11 +64,22 @@ def gameExec():
             # Store already-created menus to avoid flicker
             self.menu_widgets = {}
 
-        def navigate(self, factory):
-            """Replace central widget with a new menu instance."""
-            widget = factory(self.navigate)
-            widget.setSizePolicy( QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding )
-            self.setCentralWidget(widget)
+        def navigate(self, factory, *, key=None, parent=None):
+            if key is None:
+                key = getattr(factory, "__name__", None) or f"menu_{id(factory)}"
+            
+            if key not in self.menu_widgets:
+                # Create new menu if not cached
+                widget = factory(self.navigate, parent=parent)
+                self.menu_layout.addWidget(widget)
+                self.menu_widgets[key] = widget
+            else:
+                # Update parent_window on cached menu
+                widget = self.menu_widgets[key]
+                if hasattr(widget, "parent_window") and parent is not None:
+                    widget.parent_window = parent
+
+            self.menu_layout.setCurrentWidget(self.menu_widgets[key])
 
         def changeEvent(self, event):
             super().changeEvent(event)
@@ -116,7 +128,7 @@ def gameExec():
             main_window.show()    
             QTimer.singleShot(0, lambda: centerWindow(main_window))
 
-        main_window.navigate(createMainMenu)
+        main_window.navigate(createMainMenu, key="MainMenu", parent=main_window)
 
         return main_window
     

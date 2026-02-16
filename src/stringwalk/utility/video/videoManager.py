@@ -26,9 +26,9 @@ class VideoManager(QWidget):
 
         # Media player
         self.player = QMediaPlayer(self)
-        audio = QAudioOutput(self)
-        audio.setVolume(0)
-        self.player.setAudioOutput(audio)
+        self.audio_output = QAudioOutput(self)
+        self.audio_output.setVolume(0)
+        self.player.setAudioOutput(self.audio_output)
         self.player.setVideoOutput(self.video_item)
 
     def resizeEvent(self, event):
@@ -48,3 +48,10 @@ class VideoManager(QWidget):
         self.player.setSource(QUrl.fromLocalFile(str(path)))
         self.player.setLoops(QMediaPlayer.Loops.Infinite)
         self.player.play()
+
+    def stop_video(self):
+        """Stops the video playback and resets the media player."""
+        if self.player.playbackState() != QMediaPlayer.PlaybackState.StoppedState:
+            self.player.stop()
+        # Optionally clear the video item
+        self.player.setVideoOutput(None)

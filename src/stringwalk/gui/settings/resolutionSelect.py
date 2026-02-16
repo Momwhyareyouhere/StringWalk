@@ -4,6 +4,7 @@ from PyQt6.QtGui import QPalette, QColor
 import asyncio
 import glob
 from pathlib import Path
+from ...utility.ui.asyncWidget import AsyncWidget
 from ...utility.ui.menuHandler import makeMenuLayout, addMenuWidget, finalizeMenuLayout
 from ...utility.configHandler import readConfigItem, writeConfigItem
 from ...utility.jsonParser import parseJson
@@ -16,96 +17,120 @@ import os
 
 
 def createresolutionSelect(navigate, parent=None):
-    class resolutionSelect(QWidget):
+    class resolutionSelect(AsyncWidget):
         def __init__(self, navigate, parent=None):
             super().__init__(parent)
             self.navigate = navigate
+            self.parent_window = parent
             self.valid_resolution = True
 
+            # Layout
             outer, inner = makeMenuLayout()
-
             self.layout_ref = inner
             self.setLayout(outer)
 
-            self.all_task = asyncio.gather(
-                readConfigItem("resolutions", default=["800x600"]),
-                getText("back"),
-                getResolution(),
-                getText("fullscreen"),
-                getText("maximized")
-            )
-            self.all_task.add_done_callback(self.__tasks_loaded)
+            self.run_task(self._load_resolutions(), self._res_loaded)
 
-        def __tasks_loaded(self, task):
-            # Widget destroyed? Abort.
-            if not self.isVisible():
-                return
-            if self.layout() is None:
-                return
-            if self.layout_ref is None:
-                return
-
+        async def _load_resolutions(self):
+            # Read all valid resolutions from config
             try:
-                resolutions, back_text, current_res, fullscreen_disp, maximized_disp = task.result()
+                resolutions = await readConfigItem("resolutions", default=["800x600"])
             except Exception:
-                return
+                resolutions = ["800x600"]
 
-            # Normalize display texts
-            if isinstance(fullscreen_disp, list):
-                fullscreen_disp = fullscreen_disp[0]
-            if isinstance(maximized_disp, list):
-                maximized_disp = maximized_disp[0]
+            current_res = await getResolution()
+            return resolutions, current_res
 
-            # Build internal - display map
-            internal_items = list(resolutions)
-            internal_items += ["fullscreen", "maximized"]
+        def _res_loaded(self, task):
+            try:
+                res, current_res = task.result()  # <-- unpack the tuple correctly
+            except Exception:
+                res = ["800x600"]
+                current_res = "800x600"
 
-            display_map = {
+            # Convert resolutions to strings if needed
+            self.resolutions = []
+            for r in res:
+                if isinstance(r, (list, tuple)):
+                    self.resolutions.append(f"{r[0]}x{r[1]}")
+                else:
+                    self.resolutions.append(str(r))
+
+            # Save current resolution
+            self.current_res = str(current_res) if current_res else self.resolutions[0]
+
+            self._reload_texts()
+
+        def _reload_texts(self):
+            """Rebuild texts for back button and dropdown."""
+            self.run_task(getText(["back", "fullscreen", "maximized"]), self._build_layout)
+
+        def _build_layout(self, task):
+            try:
+                back_text, fullscreen_disp, maximized_disp = task.result()
+            except Exception:
+                back_text, fullscreen_disp, maximized_disp = "Back", "Fullscreen", "Maximized"
+
+            # Preserve previous selection if dropdown exists
+            if hasattr(self, "res_dropdown") and self.res_dropdown is not None:
+                selected_internal = self.reverse_map.get(
+                    self.res_dropdown.currentText(),
+                    self.res_dropdown.currentText()
+                )
+            else:
+                selected_internal = getattr(self, "current_res", "800x600")
+
+            # Clear layout
+            for i in reversed(range(self.layout_ref.count())):
+                item = self.layout_ref.itemAt(i)
+                widget = item.widget()
+                if widget:
+                    widget.setParent(None)
+
+            # Convert list/tuple resolutions to strings if needed
+            res_strings = []
+            for r in self.resolutions:
+                if isinstance(r, (list, tuple)):
+                    res_strings.append(f"{r[0]}x{r[1]}")
+                else:
+                    res_strings.append(str(r))
+
+            # Build internal/display maps
+            self.internal_items = self.resolutions + ["fullscreen", "maximized"]
+            self.display_map = {r: r for r in self.resolutions}
+            self.display_map.update({
                 "fullscreen": fullscreen_disp,
                 "maximized": maximized_disp
-            }
+            })
+            self.reverse_map = {v: k for k, v in self.display_map.items()}
 
-            # Normal resolutions display as-is
-            for r in resolutions:
-                display_map[r] = r
+            # Dropdown
+            self.res_dropdown = QComboBox()
+            self.res_dropdown.setProperty("variant", "setting")
+            self.res_dropdown.setEditable(True)
+            self.res_dropdown.lineEdit().setAlignment(Qt.AlignmentFlag.AlignCenter)
+            self.res_dropdown.lineEdit().textEdited.connect(self._validate_resolution)
 
-            # Reverse map for saving
-            self.reverse_map = {v: k for k, v in display_map.items()}
+            for r in self.internal_items:
+                self.res_dropdown.addItem(self.display_map.get(r, r))
 
-            # Dropdown menu
-            res_dropdown = QComboBox()
-            res_dropdown.setProperty("variant", "setting")
-            res_dropdown.setEditable(True)
-            res_dropdown.lineEdit().setAlignment(Qt.AlignmentFlag.AlignCenter)
+            self.res_dropdown.setCurrentText(self.display_map.get(selected_internal, selected_internal))
 
-            self.res_dropdown = res_dropdown
-
-            line = res_dropdown.lineEdit()
-            line.textEdited.connect(self._validate_resolution)
-
-            # Populate dropdown with display values
-            display_items = [display_map[i] for i in internal_items]
-            res_dropdown.addItems(display_items)
-
-            # Set current resolution (convert internal - display)
-            res_dropdown.setCurrentText(display_map.get(current_res, current_res))
-
-            # Connect
-            res_dropdown.currentTextChanged.connect(
-                lambda display_value: asyncio.create_task(
-                    self.setResolutionAndReload(display_value)
-                )
+            self.res_dropdown.currentTextChanged.connect(
+                lambda val: asyncio.create_task(self.setResolutionAndReload(val))
             )
 
-            addMenuWidget(self.layout_ref, res_dropdown)
-            
-            QTimer.singleShot(0, lambda: res_dropdown.lineEdit().setAlignment(Qt.AlignmentFlag.AlignCenter))
+            addMenuWidget(self.layout_ref, self.res_dropdown)
 
             # Back button
             back_btn = QPushButton(back_text)
             back_btn.clicked.connect(
                 lambda: self.navigate(
-                    __import__(f"{getProjectNameLower()}.gui.settingsMenu", fromlist=["createSettingsMenu"]).createSettingsMenu
+                    __import__(
+                        f"{getProjectNameLower()}.gui.settingsMenu",
+                        fromlist=["createSettingsMenu"]
+                    ).createSettingsMenu,
+                    parent=self.parent_window
                 )
             )
             addMenuWidget(self.layout_ref, back_btn)
@@ -118,21 +143,15 @@ def createresolutionSelect(navigate, parent=None):
             if text.lower() in ("fullscreen", "maximized"):
                 self._set_valid()
                 return
-
             if "x" not in text.lower():
                 self._set_invalid()
                 return
-
             try:
                 w, h = map(int, text.lower().split("x"))
             except ValueError:
                 self._set_invalid()
                 return
-
-            # Minimum allowed resolution
-            MIN_W, MIN_H = 800, 600
-
-            if w < MIN_W or h < MIN_H:
+            if w < 800 or h < 600:
                 self._set_invalid()
             else:
                 self._set_valid()
@@ -148,15 +167,12 @@ def createresolutionSelect(navigate, parent=None):
             line.setStyleSheet("color: white;")
 
         async def setResolutionAndReload(self, display_value):
-            # Convert display - internal key
-            resolution = self.reverse_map.get(display_value, display_value)
-
-            # If invalid, do nothing
             if not self.valid_resolution:
                 print("Resolution invalid — not applying")
                 return
 
-            # Save internal key
+            # Convert display - internal key
+            resolution = self.reverse_map.get(display_value, display_value)
             await writeConfigItem("current_resolution", resolution)
 
             window = self.nativeParentWidget()
@@ -180,7 +196,6 @@ def createresolutionSelect(navigate, parent=None):
                     centerWindow(window)
 
                 QTimer.singleShot(0, apply_lock)
-
             except ValueError:
                 print(f"Invalid resolution: {resolution}")
 
