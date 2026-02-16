@@ -69,9 +69,6 @@ def gameExec():
             widget.setSizePolicy( QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding )
             self.setCentralWidget(widget)
 
-            # Switch instantly
-            self.menu_layout.setCurrentWidget(self.menu_widgets[key])
-
         def changeEvent(self, event):
             super().changeEvent(event)
 
