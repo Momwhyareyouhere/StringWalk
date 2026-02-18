@@ -1,16 +1,23 @@
 import json
 
 
-def parseJson(file: str, key: str = None):
+def parseJson(file: str, *keys):
     try:
         with open(file, "r", encoding="utf-8") as f:
-            data = json.load(f)
-        if not isinstance(data, dict):
-            print(f"Warning: JSON root is not a dict, got {type(data)}")
+            fdata = json.load(f)
+
+        if not isinstance(fdata, dict):
+            print(f"Warning: JSON root is not a dict, got {type(fdata)}")
             return None
-        if key is None:
-            return data
-        return data.get(key)
+
+        if not keys:
+            return fdata
+
+        if len(keys) == 1:
+            return fdata.get(keys[0])
+
+        return {k: fdata.get(k) for k in keys}
+
     except FileNotFoundError:
         print(f"File not found: {file}")
         return None
@@ -18,6 +25,6 @@ def parseJson(file: str, key: str = None):
         print(f"Invalid JSON in: {file}")
         return None
 
-def writeJson(file: str, data: dict):
+def writeJson(file: str, **data: dict):
     with open(file, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=4)

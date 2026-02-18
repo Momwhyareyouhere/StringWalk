@@ -33,7 +33,7 @@ async def writeConfig(data: dict):
     config_file = getConfigPath()
 
     async with config_lock:
-        await asyncio.to_thread(writeJson, config_file, data)
+        await asyncio.to_thread(writeJson, config_file, **data)
 
 async def writeConfigItem(key: str, value):
     config_file = getConfigPath()
@@ -45,7 +45,7 @@ async def writeConfigItem(key: str, value):
             config = {}
 
         config[key] = value
-        await asyncio.to_thread(writeJson, config_file, config)
+        await asyncio.to_thread(writeJson, config_file, **config)
 
 async def readConfigItem(key: str, default=None):
     config_file = getConfigPath()
@@ -61,7 +61,7 @@ async def readConfigItem(key: str, default=None):
             default_config = {}
 
         # Create file (no lock yet exists)
-        await asyncio.to_thread(writeJson, config_file, default_config)
+        await asyncio.to_thread(writeJson, config_file, **default_config)
 
     # ---- NORMAL READ (LOCKED) ----
     async with config_lock:
