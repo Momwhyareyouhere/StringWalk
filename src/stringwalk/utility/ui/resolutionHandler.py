@@ -2,10 +2,9 @@ from ..configHandler import readConfigItem
 from PyQt6.QtWidgets import QApplication
 
 
-async def getResolution():
+async def getResolution() -> str:
     """
     Get the currently selected resolution.
-    :return: single string
     """
     # Get the current resolution in the config
     resolution = await readConfigItem("current_resolution")
@@ -28,8 +27,8 @@ def centerWindow(window):
     screen_geo = screen.availableGeometry()  # logical pixels
     win_geo = window.frameGeometry()         # logical pixels
 
-    x = screen_geo.x() + (screen_geo.width() - win_geo.width()) // 2
-    y = screen_geo.y() + (screen_geo.height() - win_geo.height()) // 2
+    x = screen_geo.x() + (screen_geo.width() // 2 - win_geo.width()) // 2
+    y = screen_geo.y() + (screen_geo.height() // 2 - win_geo.height()) // 2
 
     window.move(x, y)
 

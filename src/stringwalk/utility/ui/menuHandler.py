@@ -7,7 +7,7 @@ DEFAULT_LAYOUT_MARGIN = 50
 DEFAULT_LAYOUT_SPACING = 20
 
 
-def makeMenuLayout():
+def makeMenuLayout() -> tuple[QVBoxLayout, QVBoxLayout]:
     outer = QVBoxLayout()
     outer.setContentsMargins(0, 0, 0, 0)
     outer.addStretch()

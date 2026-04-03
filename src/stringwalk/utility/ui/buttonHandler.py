@@ -10,7 +10,7 @@ def handleButton(action, widget=None):
     if callable(action):
         action(widget)
 
-def create_action(button: QPushButton, func):
+def create_action(button: QPushButton, func) -> function:
     """
     Wraps a function with SFX logic.
     Ensures SFX only plays when clicking the actual button area.

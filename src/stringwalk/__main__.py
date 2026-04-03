@@ -110,7 +110,7 @@ def gameExec():
             self.video_manager.setGeometry(self.central_container.rect())
             self.menu_container.setGeometry(self.central_container.rect())
 
-    async def setup():
+    async def setup() -> MainWindow:
         res = await getResolution()
     
         main_window = MainWindow()

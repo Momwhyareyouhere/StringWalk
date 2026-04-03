@@ -8,7 +8,7 @@ class AsyncWidget(QWidget):
         self._tasks = []
         register_menu(self)
 
-    def run_task(self, coro, callback):
+    def run_task(self, coro, callback) -> asyncio.Task:
         task = asyncio.create_task(coro)
         task.add_done_callback(callback)
         self._tasks.append(task)
