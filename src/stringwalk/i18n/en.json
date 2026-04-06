@@ -9,6 +9,12 @@
     "language": "Language",
     "resolution": "Resolution",
     "back": "Back",
+    "create_lobby": "Create Lobby",
+    "join_lobby": "Join Lobby",
+    "lobby_title": "Lobby",
+    "lobby_ip": "Host IP",
+    "player_one": "Player 1",
+    "player_two_waiting": "Waiting for Player 2",
 
     "fullscreen": "Fullscreen",
     "maximized": "Maximized"

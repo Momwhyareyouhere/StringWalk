@@ -6,6 +6,7 @@ from .utility.video.videoManager import VideoManager
 from .utility.ui.qssProcessor import applyGlobalStyles
 from .utility.data.projectNameHandler import getProjectName
 from .utility.ui.resolutionHandler import getResolution, centerWindow, lockWindowSize
+from .utility.audio.soundHandler import playSound, stopSound
 from .gui.mainMenu import createMainMenu
 import asyncio
 import sys
@@ -63,6 +64,19 @@ def gameExec():
 
             # Store already-created menus to avoid flicker
             self.menu_widgets = {}
+            self.should_resume_lobby_media = True
+
+        def start_lobby_media(self):
+            self.should_resume_lobby_media = True
+            self.video_manager.show()
+            self.video_manager.play_video("lobby.mp4")
+            playSound("music", "lobby.mp3")
+
+        def stop_lobby_media(self, *, allow_resume=False):
+            self.should_resume_lobby_media = allow_resume
+            self.video_manager.stop_video()
+            self.video_manager.hide()
+            stopSound("music")
 
         def navigate(self, factory, *, key=None, parent=None):
             if key is None:
@@ -129,6 +143,7 @@ def gameExec():
             QTimer.singleShot(0, lambda: centerWindow(main_window))
 
         main_window.navigate(createMainMenu, key="MainMenu", parent=main_window)
+        main_window.start_lobby_media()
 
         return main_window
     

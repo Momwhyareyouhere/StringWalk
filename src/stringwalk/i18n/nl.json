@@ -9,6 +9,12 @@
     "language": "Taal",
     "resolution": "Resolutie",
     "back": "Terug",
+    "create_lobby": "Lobby Maken",
+    "join_lobby": "Lobby Joinen",
+    "lobby_title": "Lobby",
+    "lobby_ip": "Host-IP",
+    "player_one": "Player 1",
+    "player_two_waiting": "Wachten op Player 2",
 
     "fullscreen": "Volledig scherm",
     "maximized": "Gemaximaliseerd"

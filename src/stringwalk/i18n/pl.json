@@ -9,6 +9,12 @@
     "language": "Język",
     "resolution": "Rozdzielczość",
     "back": "Wróć",
+    "create_lobby": "Stwórz Lobby",
+    "join_lobby": "Dołącz do Lobby",
+    "lobby_title": "Lobby",
+    "lobby_ip": "IP Hosta",
+    "player_one": "Player 1",
+    "player_two_waiting": "Oczekiwanie na Player 2",
 
     "fullscreen": "Pełny ekran",
     "maximized": "Zmaksymalizowane"

@@ -70,4 +70,11 @@ class AudioManager:
         wtype = type(widget).__name__
         return self.sfx_map.get(wtype, {}).get(event_name)
 
-audio = AudioManager()
+_audio_manager = None
+
+
+def get_audio():
+    global _audio_manager
+    if _audio_manager is None:
+        _audio_manager = AudioManager()
+    return _audio_manager

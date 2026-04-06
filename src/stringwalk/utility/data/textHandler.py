@@ -23,6 +23,8 @@ async def getText(keys):
         json_path = root / "i18n" / "en.json"
     else:
         json_path = root / "i18n" / f"{lang}.json"
+        if not json_path.exists():
+            json_path = root / "i18n" / "en.json"
 
     results = [parseJson(json_path, key) for key in keys]
 
